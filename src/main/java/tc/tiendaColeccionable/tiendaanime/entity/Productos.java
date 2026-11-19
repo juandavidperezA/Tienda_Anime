@@ -30,4 +30,14 @@ public class Productos {
     @Column(nullable = false)
     private Integer cantidad;
 
+    public Productos(String nombre, Categoria categoria, BigDecimal precio, Integer cantidad) {
+
+        if(cantidad<=0){
+            throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
+        }
+        this.nombre = nombre;
+        this.categoria = categoria;
+        this.precio = precio;
+        this.cantidad = cantidad;
+    }
 }

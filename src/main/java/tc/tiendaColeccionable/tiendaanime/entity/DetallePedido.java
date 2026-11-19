@@ -27,4 +27,15 @@ public class DetallePedido {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal precioUnitario;
 
+    public DetallePedido(Productos productos, Pedidos pedido, BigDecimal precioUnitario) {
+        if(pedido==null || productos == null){
+            throw new IllegalArgumentException("El pedido y producto son obligatorios");
+        }
+        if(productos.getCantidad()<=0){
+            throw new IllegalArgumentException("la cantidad no puede ser menor o igual a cero");
+        }
+        this.productos = productos;
+        this.pedido = pedido;
+        this.precioUnitario = precioUnitario;
+    }
 }

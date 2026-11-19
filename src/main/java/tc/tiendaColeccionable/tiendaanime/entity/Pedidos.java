@@ -37,5 +37,11 @@ public class Pedidos {
     @Column(nullable = false,length = 150)
     private String estado;
 
-
+    public Pedidos(Clientes clientes, BigDecimal total, BigDecimal subtotal, BigDecimal descuento, String estado) {
+        this.clientes = clientes;
+        this.total = total;
+        this.subtotal = subtotal;
+        this.descuento = descuento;
+        this.estado = estado;
+    }
 }
