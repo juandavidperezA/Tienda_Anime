@@ -7,3 +7,4 @@ import tc.tiendaColeccionable.tiendaanime.entity.Productos;
 @Repository
 public interface ProductosRepository extends JpaRepository<Productos, Long> {
 }
+

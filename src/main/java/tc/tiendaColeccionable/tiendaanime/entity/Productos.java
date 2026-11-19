@@ -22,7 +22,7 @@ public class Productos {
 
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "categoria_id",nullable = false)
-    private Categoria categoria;
+    private Categorias categoria;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal precio;
@@ -30,7 +30,7 @@ public class Productos {
     @Column(nullable = false)
     private Integer cantidad;
 
-    public Productos(String nombre, Categoria categoria, BigDecimal precio, Integer cantidad) {
+    public Productos(String nombre, Categorias categoria, BigDecimal precio, Integer cantidad) {
 
         if(cantidad<=0){
             throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
