@@ -24,18 +24,30 @@ public class DetallePedido {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Pedidos pedido;
 
+    @Column(nullable = false)
+    private Integer cantidad;
+
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal precioUnitario;
 
-    public DetallePedido(Productos productos, Pedidos pedido, BigDecimal precioUnitario) {
+    public DetallePedido(Productos productos, Pedidos pedido, Integer cantidad) {
         if(pedido==null || productos == null){
             throw new IllegalArgumentException("El pedido y producto son obligatorios");
         }
-        if(productos.getCantidad()<=0){
+        if(cantidad==null || cantidad<=0 ){
             throw new IllegalArgumentException("la cantidad no puede ser menor o igual a cero");
+        }
+
+        if(cantidad>productos.getCantidad()){
+            throw new IllegalArgumentException("La cantidad solicitada no puede ser mayor al del inventario del producto");
         }
         this.productos = productos;
         this.pedido = pedido;
-        this.precioUnitario = precioUnitario;
+        this.cantidad=cantidad;
+        this.precioUnitario = productos.getPrecio();
+    }
+
+    public BigDecimal calcularImporte(){
+        return precioUnitario.multiply(BigDecimal.valueOf(cantidad));
     }
 }
