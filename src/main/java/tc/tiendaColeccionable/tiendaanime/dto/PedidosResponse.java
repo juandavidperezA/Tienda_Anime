@@ -2,6 +2,7 @@ package tc.tiendaColeccionable.tiendaanime.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PedidosResponse(
         Long id,
@@ -10,6 +11,7 @@ public record PedidosResponse(
         BigDecimal subtotal,
         BigDecimal descuento,
         BigDecimal total,
-        String estado
+        String estado,
+        List<DetallePedidoResponse> detalles
 ) {
 }
