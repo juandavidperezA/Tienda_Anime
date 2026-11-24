@@ -9,6 +9,7 @@ public record ClientesRequest(
         String nombre,
 
         @NotBlank
+        @Email
         @Size(max = 150)
         String correo,
 
