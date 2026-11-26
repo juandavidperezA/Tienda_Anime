@@ -71,14 +71,20 @@ public class Pedidos {
         if(tasaDescuento==null || tasaDescuento.signum()<0 ||tasaDescuento.compareTo(BigDecimal.ONE)>0){
             throw new IllegalArgumentException("La tasa de descuento debe estar entre 0 y 1");
         }
-        subtotal=detalles.stream()
-                .map(DetallePedido::calcularImporte)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add)
-                .setScale(2, RoundingMode.UNNECESSARY);
+
+        subtotal= calcularSubtotal();
 
         descuento= subtotal.multiply(tasaDescuento)
                 .setScale(2,RoundingMode.HALF_UP);
 
         total=subtotal.subtract(descuento);
+    }
+
+    public BigDecimal calcularSubtotal(){
+        return detalles.stream()
+                .map(DetallePedido::calcularImporte)
+                .reduce(new BigDecimal("0.00"), BigDecimal::add)
+                .setScale(2, RoundingMode.UNNECESSARY);
+
     }
 }
