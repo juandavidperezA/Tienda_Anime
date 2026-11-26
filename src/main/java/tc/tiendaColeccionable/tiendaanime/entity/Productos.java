@@ -32,8 +32,8 @@ public class Productos {
 
     public Productos(String nombre, Categorias categoria, BigDecimal precio, Integer cantidad) {
 
-        if(cantidad<=0){
-            throw new IllegalArgumentException("La cantidad debe ser mayor a cero");
+        if(cantidad== null || cantidad<0){
+            throw new IllegalArgumentException("La cantidad no puede ser nula ni negativa");
         }
         this.nombre = nombre;
         this.categoria = categoria;

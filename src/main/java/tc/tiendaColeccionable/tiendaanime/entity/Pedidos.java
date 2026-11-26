@@ -19,9 +19,9 @@ public class Pedidos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "cliente_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY,optional = false)
-    private Clientes clientes;
+    @JoinColumn(name = "usuario_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private Usuarios usuario;
 
     @Column(nullable = false)
     private LocalDateTime fecha;
@@ -41,11 +41,11 @@ public class Pedidos {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetallePedido> detalles= new ArrayList<>();
 
-    public Pedidos(Clientes clientes) {
-        if(clientes==null){
-            throw new IllegalArgumentException("El cliente es obligatorio");
+    public Pedidos(Usuarios usuarios) {
+        if(usuarios==null){
+            throw new IllegalArgumentException("El usuario es obligatorio");
         }
-        this.clientes = clientes;
+        this.usuario = usuarios;
         this.subtotal = BigDecimal.ZERO;
         this.descuento = BigDecimal.ZERO;
         this.total = BigDecimal.ZERO;
@@ -71,14 +71,20 @@ public class Pedidos {
         if(tasaDescuento==null || tasaDescuento.signum()<0 ||tasaDescuento.compareTo(BigDecimal.ONE)>0){
             throw new IllegalArgumentException("La tasa de descuento debe estar entre 0 y 1");
         }
-        subtotal=detalles.stream()
-                .map(DetallePedido::calcularImporte)
-                .reduce(new BigDecimal("0.00"), BigDecimal::add)
-                .setScale(2, RoundingMode.UNNECESSARY);
+
+        subtotal= calcularSubtotal();
 
         descuento= subtotal.multiply(tasaDescuento)
                 .setScale(2,RoundingMode.HALF_UP);
 
         total=subtotal.subtract(descuento);
+    }
+
+    public BigDecimal calcularSubtotal(){
+        return detalles.stream()
+                .map(DetallePedido::calcularImporte)
+                .reduce(new BigDecimal("0.00"), BigDecimal::add)
+                .setScale(2, RoundingMode.UNNECESSARY);
+
     }
 }

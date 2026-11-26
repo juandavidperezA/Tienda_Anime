@@ -8,7 +8,7 @@ public record PedidosRequest(
 
         @NotNull
         @Positive
-        Long clienteId,
+        Long usuarioId,
 
         @NotEmpty
         @Valid

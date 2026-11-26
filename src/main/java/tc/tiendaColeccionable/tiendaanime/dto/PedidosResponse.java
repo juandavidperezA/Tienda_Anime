@@ -6,7 +6,7 @@ import java.util.List;
 
 public record PedidosResponse(
         Long id,
-        Long clienteId,
+        Long usuarioId,
         LocalDateTime fecha,
         BigDecimal subtotal,
         BigDecimal descuento,
