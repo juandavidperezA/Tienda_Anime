@@ -2,7 +2,10 @@ package tc.tiendaColeccionable.tiendaanime.service;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -42,6 +45,7 @@ public class PedidoService {
     }
 
     @Transactional
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN')")
     public PedidosResponse crear(@NotNull @Valid PedidosRequest pedidosRequest){
         Usuarios usuarios= usuariosRepository.findById(pedidosRequest.usuarioId()).orElseThrow(()->new IllegalArgumentException("No existe un usuario con ese ID=" + pedidosRequest.usuarioId()));
 
@@ -70,13 +74,29 @@ public class PedidoService {
         return toResponse(guardar);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public List<PedidosResponse> listar(){
         return pedidoRepository.findAll().stream().map(this::toResponse).toList();
     }
 
-    public Optional<PedidosResponse> buscarPorId(@NotNull @Positive Long pedidoId){
-        return pedidoRepository.findById(pedidoId).map(this::toResponse);
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN')")
+    public Optional<PedidosResponse> buscarPorId(Long pedidoId){
+        Usuarios usuario= usuarioActual();
+
+        if(esAdmin()){
+            return pedidoRepository.findById(pedidoId).map(this::toResponse);
+        }
+
+        return pedidoRepository.findByIdAndUsuario_Id(pedidoId, usuario.getId()).map(this::toResponse);
     }
+
+    @PreAuthorize("hasAnyRole('CLIENTE', 'ADMIN')")
+    public List<PedidosResponse> buscarLosMios(){
+        Usuarios usuario= usuarioActual();
+
+        return pedidoRepository.findByUsuario_Id(usuario.getId()).stream().map(this::toResponse).toList();
+    }
+
 
     private DetallePedidoResponse toDetallePedidoResponse(DetallePedido detallePedido){
         return new DetallePedidoResponse(detallePedido.getId(),
@@ -100,5 +120,39 @@ public class PedidoService {
         }
 
         return BigDecimal.ZERO;
+    }
+
+    private Usuarios usuarioActual(){
+        Authentication authentication= SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if(authentication==null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())){
+            throw new BadCredentialsException("Autenticacion requerida");
+        }
+        Long usuarioId;
+        try {
+            usuarioId = Long.valueOf(authentication.getName());
+        } catch (NumberFormatException exception) {
+            throw new BadCredentialsException(
+                    "Identidad inválida"
+            );
+        }
+
+        return usuariosRepository.findById(usuarioId)
+                .orElseThrow(() -> new BadCredentialsException(
+                        "Usuario no disponible"
+                ));
+
+
+    }
+    private boolean esAdmin() {
+        return SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_ADMIN")
+                );
     }
 }
