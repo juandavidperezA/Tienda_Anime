@@ -18,4 +18,19 @@ public interface PedidoRepository extends JpaRepository<Pedidos, Long> {
     @Override
     @EntityGraph(attributePaths = {"detalles","detalles.productos"})
     List<Pedidos> findAll();
+
+    @EntityGraph(attributePaths = {
+            "detalles",
+            "detalles.producto"
+    })
+    Optional<Pedidos> findByIdAndUsuario_Id(
+            Long id,
+            Long usuarioId
+    );
+
+    @EntityGraph(attributePaths = {
+            "detalles",
+            "detalles.producto"
+    })
+    List<Pedidos> findByUsuario_Id(Long usuarioId);
 }
