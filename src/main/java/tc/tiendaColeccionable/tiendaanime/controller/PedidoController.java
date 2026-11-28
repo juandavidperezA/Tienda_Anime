@@ -7,16 +7,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tc.tiendaColeccionable.tiendaanime.dto.PedidosRequest;
 import tc.tiendaColeccionable.tiendaanime.dto.PedidosResponse;
 import tc.tiendaColeccionable.tiendaanime.service.PedidoService;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/API/Pedidos")
@@ -59,5 +59,37 @@ public class PedidoController {
                 .body(pedido);
     }
 
-    
+    @GetMapping
+    @Operation(summary = "Listar pedidos")
+    public ResponseEntity<List<PedidosResponse>> listar(){
+        return ResponseEntity.ok(pedidoService.listar());
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar los pedidos por ID")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Recurso encontrado"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "ID invalido",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "El pedido no existe",
+                    content = @Content
+            )
+    })
+    public ResponseEntity<PedidosResponse> buscarPorId(@PathVariable("id") @Positive Long id){
+        return pedidoService.buscarPorId(id).map(ResponseEntity::ok).orElseGet(()->ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/misPedidos")
+    @Operation(summary = "Consultar mis pedidos")
+    public ResponseEntity<List<PedidosResponse>> ConsultarMisPedidos(){
+        return ResponseEntity.ok(pedidoService.buscarLosMios());
+    }
 }
